@@ -4,7 +4,8 @@ module Articles
       def call(text_information)
         @prompt ="#{Prompts::SINGLE_ARTICLE_SUMMARIZER} #{text_information}"
 
-        success summarize
+        summary = summarize!
+        success summary
       end
 
       private
@@ -13,8 +14,8 @@ module Articles
         @connection ||=  Groq::Openai::V1::GroqApi.new(api_key: ENV.fetch("GROQ_API_KEY", nil))
       end
 
-      def summarize
-        Groq::Chat::Completions::Prompt.call(@prompt, connection)
+      def summarize!
+        Groq::Chat::Completions::Prompt.call!(@prompt, connection)
       end
     end
   end
