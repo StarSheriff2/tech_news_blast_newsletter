@@ -35,3 +35,7 @@
 .idea
 .rbenv-gemsets
 .idea/*
+
+# Ignore Spec log files
+vcr.log
+/spec/cassettes
