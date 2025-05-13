@@ -24,7 +24,10 @@ module Groq
                 }
               end
             rescue Faraday::Error => e
-              puts e.inspect
+              raise ApiError.new(
+                message: e.message,
+                faraday_error_class: e.class
+              )
             end
 
             private
