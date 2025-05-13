@@ -1,4 +1,3 @@
-# spec/apis/groq/openai/v1/client_spec.rb
 require 'rails_helper'
 require 'faraday'
 
@@ -36,13 +35,16 @@ RSpec.describe Groq::Openai::V1::Client do
       end
     end
 
-    context "when the request raises an error" do
-      before do
+    context "when the request fails" do
+      it "raises a custom ApiError when Faraday error occurs" do
         stubs.get(endpoint) { raise Faraday::ConnectionFailed.new("Connection error") }
-      end
 
-      it "handles the error and logs it" do
-        expect { client.request(http_method: http_method, endpoint: endpoint, body: body) }.not_to raise_error
+        expect {
+          client.request(http_method: http_method, endpoint: endpoint, body: body)
+        }.to raise_error(ApiError) do |error|
+          expect(error.message).to eq("Connection error")
+          expect(error.faraday_error_class).to eq(Faraday::ConnectionFailed)
+        end
       end
     end
   end

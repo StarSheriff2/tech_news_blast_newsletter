@@ -46,6 +46,8 @@ module Groq
                               config.response :json, parser_options: { symbolize_names: true }
                               config.response :raise_error
                               config.response :logger, Rails.logger, headers: true, bodies: true, log_level: :debug
+
+                              config.adapter adapter, @stubs
                             end
                           end
             end
