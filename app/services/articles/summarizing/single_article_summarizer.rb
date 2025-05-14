@@ -4,7 +4,6 @@ module Articles
       def call(text_information)
         @prompt ="#{Prompts::SINGLE_ARTICLE_SUMMARIZER} #{text_information}"
 
-        # TODO: Handle api error responses and create specs for these services
         summarize!
         success @summary
       end
@@ -16,7 +15,8 @@ module Articles
       end
 
       def summarize!
-        @summary = Groq::Chat::Completions::Prompt.call!(@prompt, connection)
+        response = Groq::Chat::Completions::Prompt.call!(@prompt, connection)
+        @summary = response.payload[:body][:choices][0][:message][:content]
       end
     end
   end
