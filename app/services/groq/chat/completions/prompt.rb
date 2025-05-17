@@ -6,7 +6,8 @@ module Groq
           @prompt = prompt
           @client = client
 
-          success @client.chat.completions(@prompt)
+          response = @client.chat.completions(@prompt)
+          success response
         end
       end
     end
