@@ -2,7 +2,7 @@ require 'rails_helper'
 require "yaml"
 
 RSpec.describe Articles::Summarizing::SingleArticleSummarizer, type: :service do
-  subject(:service) { described_class.new }
+  subject(:service) { described_class }
 
   describe '#call' do
     context 'when the call is successful' do
