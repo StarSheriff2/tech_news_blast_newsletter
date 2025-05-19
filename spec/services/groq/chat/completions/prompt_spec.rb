@@ -1,5 +1,5 @@
 require 'rails_helper'
-require 'support/vcr_helper'
+require 'vcr_helper'
 
 RSpec.describe Groq::Chat::Completions::Prompt, type: :service do
   subject { described_class }
