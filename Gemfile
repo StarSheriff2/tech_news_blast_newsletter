@@ -16,12 +16,15 @@ gem "puma", ">= 5.0"
 gem "tzinfo-data", platforms: %i[ windows jruby ]
 
 # Use the database-backed adapters for Rails.cache, Active Job, and Action Cable
+gem "solid_cable"
 gem "solid_cache"
 gem "solid_queue"
-gem "solid_cable"
+
 
 # Reduces boot times through caching; required in config/boot.rb
 gem "bootsnap", require: false
+
+gem "faraday"
 
 # Deploy this application anywhere as a Docker container [https://kamal-deploy.org]
 gem "kamal", require: false
@@ -40,17 +43,19 @@ gem "devise"
 gem "devise-jwt"
 
 # Background jobs
-gem "sidekiq"
 gem "redis"
+gem "sidekiq"
 gem "sidekiq-cron"
 
 # Web scraping and APIs
-gem "nokogiri"
 gem "httparty"
+gem "nokogiri"
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"
+
+  gem "dotenv-rails"
 
   # Static analysis for security vulnerabilities [https://brakemanscanner.org/]
   gem "brakeman", require: false
@@ -61,7 +66,8 @@ group :development, :test do
   gem "letter_opener"
   gem "letter_opener_web", "~> 3.0"
 
-  gem "rspec-rails", "~> 6.1.0"
   gem "factory_bot_rails"
   gem "faker"
+  gem "rspec-rails", "~> 6.1.0"
+  gem "vcr"
 end

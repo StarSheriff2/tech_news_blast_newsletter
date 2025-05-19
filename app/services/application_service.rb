@@ -24,13 +24,12 @@ class ApplicationService
     end
 
     def success(payload = nil)
-      Response.new(true, payload, nil)
+      Response.new(success: true, payload: payload, error: nil)
     end
 
-    def failure(exception, options = {})
+    def failure(exception)
       raise exception if @propagate
 
-      # ErrorService.error(exception, options)
-      Response.new(false, nil, exception)
+      Response.new(success: false, payload: nil, error: exception)
     end
 end
