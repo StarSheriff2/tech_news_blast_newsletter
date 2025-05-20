@@ -2,7 +2,7 @@ module Articles
   module Summarizing
     class SingleArticleSummarizer < ApplicationService
       def call(text_information)
-        @prompt ="#{Prompts::SINGLE_ARTICLE_SUMMARIZER} #{text_information}"
+        @prompt ="#{Prompts.single_article_summarizer} #{text_information}"
 
         summarize!
         success @summary
