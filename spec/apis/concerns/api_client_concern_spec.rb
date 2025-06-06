@@ -9,6 +9,11 @@ RSpec.describe ApiClientConcern, type: :module do
     TestApiClient.base_url = "https://api.example.com/v1"
   end
 
+  after do
+    # Raises an error if any of the stubbed calls have not been made for each example
+    stubs.verify_stubbed_calls
+  end
+
   let(:api_key) { "test_api_key" }
   let(:adapter) { :test }
   let(:stubs) { Faraday::Adapter::Test::Stubs.new }
@@ -67,8 +72,6 @@ RSpec.describe ApiClientConcern, type: :module do
       }.to raise_error(ApiError) do |error|
         expect(error.faraday_error_class).to eq Faraday::ConnectionFailed
       end
-
-      stubs.verify_stubbed_calls
     end
   end
 
