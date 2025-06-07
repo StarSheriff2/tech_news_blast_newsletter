@@ -1,6 +1,6 @@
 module Articles
   module Summarizing
-    class SingleArticleSummarizer < ApplicationService
+    class SingleArticleSummarizerService < ApplicationService
       def call(text_information)
         @prompt ="#{Prompts.single_article_summarizer} #{text_information}"
 
@@ -15,7 +15,7 @@ module Articles
       end
 
       def summarize!
-        response = Groq::Chat::Completions::Prompt.call!(@prompt, connection)
+        response = Groq::Chat::Completions::GroqPromptService.call!(@prompt, connection)
         @summary = response.payload[:body][:choices][0][:message][:content]
       end
     end

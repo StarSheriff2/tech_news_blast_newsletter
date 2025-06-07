@@ -1,7 +1,7 @@
 require 'rails_helper'
 require 'vcr_helper'
 
-RSpec.describe Groq::Chat::Completions::Prompt, type: :service do
+RSpec.describe Groq::Chat::Completions::GroqPromptService, type: :service do
   subject { described_class }
   let!(:prompt) { "Tell me who is considered the father of LLMs." }
 

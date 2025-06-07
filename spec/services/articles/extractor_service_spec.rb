@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Articles::Extractor, type: :service do
+RSpec.describe Articles::ExtractorService, type: :service do
   let(:url) { "http://example.com/article" }
 
   def mock_html_content(html_content)

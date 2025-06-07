@@ -1,6 +1,6 @@
 module NewsSourcesRanking
   module Lib
-    class FindNewsSites < ApplicationService
+    class NewsSitesSearchService < ApplicationService
       def call(query)
         @query = query
         @options = { params: QueryParams.params }
@@ -16,7 +16,7 @@ module NewsSourcesRanking
       end
 
       def search!
-        response = Googleapis::CustomSearch::Search.call!(@query, connection)
+        response = Googleapis::CustomSearch::GoogleSearchService.call!(@query, connection)
         @summary = response.payload
       end
     end

@@ -1,7 +1,7 @@
 require 'rails_helper'
 require "yaml"
 
-RSpec.describe Articles::Summarizing::SingleArticleSummarizer, type: :service do
+RSpec.describe Articles::Summarizing::SingleArticleSummarizerService, type: :service do
   subject(:service) { described_class }
 
   describe '#call' do
@@ -11,7 +11,7 @@ RSpec.describe Articles::Summarizing::SingleArticleSummarizer, type: :service do
         response_mock = double(payload:  { body:  { choices: [ { message: { content: 'This is the summary' } } ] } })
 
         # Stub external Groq call
-        allow(Groq::Chat::Completions::Prompt).to receive(:call!)
+        allow(Groq::Chat::Completions::GroqPromptService).to receive(:call!)
                                                     .with(anything, anything)
                                                     .and_return(response_mock)
 

@@ -1,6 +1,6 @@
 require "open-uri"
 
-class Articles::Extractor < ApplicationService
+class Articles::ExtractorService < ApplicationService
   CUTOFFS =  [
     /Related (articles|stories)/i,
     /^More:/,

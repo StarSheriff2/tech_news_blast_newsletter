@@ -1,7 +1,7 @@
 module Groq
   module Chat
     module Completions
-      class Prompt < ApplicationService
+      class GroqPromptService < ApplicationService
         def call(prompt, client)
           @prompt = prompt
           @client = client

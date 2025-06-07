@@ -1,6 +1,6 @@
 module Googleapis
   module CustomSearch
-    class Search < ApplicationService
+    class GoogleSearchService < ApplicationService
       def call(query, client)
         @query = query
         @client = client
