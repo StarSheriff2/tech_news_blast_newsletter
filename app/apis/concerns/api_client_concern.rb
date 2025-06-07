@@ -7,15 +7,16 @@ module ApiClientConcern
     class_attribute :base_url, :options
   end
 
-  def initialize(api_key:, adapter: Faraday.default_adapter, stubs: nil, options: {})
+  def initialize(api_key: nil, adapter: Faraday.default_adapter, stubs: nil, options: {})
     @api_key = api_key
     @adapter = adapter
     @stubs = stubs
     @options = default_options.merge(options)
   end
 
-  def request(http_method:, endpoint:, body: {})
-    client.public_send(http_method, endpoint, body).then do |response|
+  # Note: Params refers to either query params or body params
+  def request(http_method:, endpoint: nil, params: nil, headers: nil)
+    client.public_send(http_method, endpoint, params, headers).then do |response|
       {
         status: response.status,
         body: response.body

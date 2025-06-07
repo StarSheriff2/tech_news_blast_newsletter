@@ -4,12 +4,12 @@ module Groq
   module Openai
     module V1
       module Resources
-        class Chat < Base
+        class Chat < Lib::ApiResource
             def completions(prompt)
               request(
                 http_method: :post,
                 endpoint: "chat/completions",
-                body: {
+                params: {
                   model: "llama-3.3-70b-versatile",
                   messages: [ {
                                 role: "user",

@@ -17,7 +17,7 @@ RSpec.describe Groq::Openai::V1::Client do
   describe "#request" do
     let(:endpoint) { "/test_endpoint" }
     let(:http_method) { :get }
-    let(:body) { { key: "value" } }
+    let(:params) { { key: "value" } }
 
     context "when the request is successful" do
       before do
@@ -29,7 +29,7 @@ RSpec.describe Groq::Openai::V1::Client do
       end
 
       it "returns the response status and body" do
-        response = client.request(http_method: http_method, endpoint: endpoint, body: body)
+        response = client.request(http_method: http_method, endpoint: endpoint, params: params)
         expect(response[:status]).to eq(200)
         expect(response[:body]).to eq({ success: true })
       end
@@ -40,7 +40,7 @@ RSpec.describe Groq::Openai::V1::Client do
         stubs.get(endpoint) { raise Faraday::ConnectionFailed.new("Connection error") }
 
         expect {
-          client.request(http_method: http_method, endpoint: endpoint, body: body)
+          client.request(http_method: http_method, endpoint: endpoint, params: params)
         }.to raise_error(ApiError) do |error|
           expect(error.message).to eq("Connection error")
           expect(error.faraday_error_class).to eq(Faraday::ConnectionFailed)
