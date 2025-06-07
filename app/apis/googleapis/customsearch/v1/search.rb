@@ -3,10 +3,13 @@ require "faraday"
 module Googleapis
   module Customsearch
     module V1
-        class Search < Base
-          def execute
+        class Search < Lib::ApiResource
+          def execute(query)
             request(
-              http_method: :get
+              http_method: :get,
+              params: {
+                q: query
+              }
             )
           end
         end
