@@ -28,7 +28,7 @@ RSpec.describe ApiClientConcern, type: :module do
   end
 
   describe '#request' do
-    let(:response_body) { { message: "success" } }
+    let(:response_body) { { message: "success" }.to_json }
 
     it 'sends a request and returns the response' do
       stubs.get('/test_endpoint') { [ 200, {}, response_body ] }

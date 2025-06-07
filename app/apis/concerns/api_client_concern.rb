@@ -4,13 +4,14 @@ module ApiClientConcern
   included do
     attr_reader :api_key, :adapter
 
-    class_attribute :base_url
+    class_attribute :base_url, :options
   end
 
-  def initialize(api_key:, adapter: Faraday.default_adapter, stubs: nil)
+  def initialize(api_key:, adapter: Faraday.default_adapter, stubs: nil, options: {})
     @api_key = api_key
     @adapter = adapter
     @stubs = stubs
+    @options = default_options.merge(options)
   end
 
   def request(http_method:, endpoint:, body: {})
@@ -32,14 +33,13 @@ module ApiClientConcern
   # Shared client logic, with a hook for customization
   def client
     @client ||= begin
-                  Faraday.new(url: self.class.base_url, **default_options) do |config|
+                  Faraday.new(url: self.class.base_url, **@options) do |config|
                     setup_shared_middlewares(config)
                     setup_custom_middlewares(config) # Hook for subclasses
                   end
                 end
   end
 
-  # Default options for Faraday
   def default_options
     {
       request: {
