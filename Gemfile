@@ -48,8 +48,13 @@ gem "sidekiq"
 gem "sidekiq-cron"
 
 # Web scraping and APIs
+gem "capybara"
+gem "cuprite"
+gem "ferrum"
 gem "httparty"
 gem "nokogiri"
+gem "selenium-webdriver", "~> 4.10.0"
+gem "webdrivers", "~> 5.3"
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
