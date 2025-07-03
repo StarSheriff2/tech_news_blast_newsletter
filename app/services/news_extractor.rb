@@ -7,59 +7,58 @@ require "selenium-webdriver"
 require "webdrivers"
 
 class NewsExtractor
-  MIN_SIBLINGS             = 4
-  MAX_RECURSION            = 6
-  SHORT_TITLE              = 15
-  SECTION_DEPTH_THRESHOLD  = 2
-  BLACKLIST_CLASSES        = %w[nav footer sidebar menu header]
-  FALLBACK_SELECTORS       = [
-    "article",
-    '[itemtype="http://schema.org/NewsArticle"]',
-    '[itemtype="https://schema.org/NewsArticle"]',
-    # "[class*='story']",
-    ".news", ".post", ".teaser", ".listing-item", ".entry"
-  ].freeze
-
-  include CapybaraHelpers
-  # selectors for date elements
-  # DATE_SELECTORS = [
-  #   "time[datetime]",
-  #   ".date", ".dateline", ".published", ".timestamp"
-  # ].freeze
-  # attr_reader :url
+  Article = Struct.new(:title, :author, :published_at, :url, keyword_init: true)
 
   def initialize(url)
-    @url         = url
-    @domain      = URI.parse(url).yield_self { |u| "#{u.scheme}://#{u.host}" }
+    @url = url
   end
 
-  # Public method to run extraction
-  def extract
-    doc = fetch_direct || fetch_headless
-    [] unless doc
+  def call
+    doc = fetch_direct(@url) || fetch_headless(@url)
+    return [] unless doc
 
+    article_nodes = doc.css('article, [class*="story"], [class*="article"], [class*="post"], [class*="entry"]')
+    articles = article_nodes.map do |article|
+      url = absolute_url(extract_href(article))
+      {
+        title: extract_title(article).blank? ? title_from_url(url) : extract_title(article),
+        author: extract_generic(article, '[class*="author"], .byline, .contributor'),
+        published_at: extract_time(article),
+        url: url
+      }
+    end
+
+    articles.compact.uniq { |a| a[:url] }.map { |data| Article.new(**data) }
+
+    return [] if articles.length < 6
+
+    articles
+  rescue StandardError => e
+    Rails.logger.error("[NewsScraperService] Failed to scrape: #{e.message}")
     []
-    # clusters = build_clusters(doc)
-    # scored  = score_and_filter_clusters(clusters)
-    # nodes   = pick_best_cluster(scored) || doc.css(FALLBACK_SELECTORS.join(","))
-    # nodes.uniq.map { |node| extract_from_node(node) }.compact
   end
 
   private
 
-  def fetch_direct
-    html = URI.open(@url, "User-Agent" => "Ruby/#{RUBY_VERSION}") { |f| f.read }
+  def fetch_direct(url)
+    html = URI.open(url, "User-Agent" => "Ruby Scraper").read
     Nokogiri::HTML(html)
-  rescue OpenURI::HTTPError, SocketError, Errno::ECONNREFUSED, Net::OpenTimeout
+  rescue
     nil
   end
 
-  def fetch_headless
+  def fetch_headless(url)
     session = Capybara::Session.new(:selenium_chrome_headless_stealth)
-    session.visit(@url)
-    # # Optional: wait for body content to settle
-    # wait_for_stable_dom(session, timeout: 15)
-    # Wait until DOM stabilizes (for SPAs or slow-rendering pages)
+    session.visit(url)
+    stabilize_dom(session)
+    Nokogiri::HTML(session.html)
+  rescue => e
+    Rails.logger.error("Headless fetch failed: #{e.message}")
+    warn "Headless fetch failed: #{e.message}"
+    nil
+  end
+
+  def stabilize_dom(session)
     last_size = nil
     stable_count = 0
     10.times do
@@ -73,39 +72,45 @@ class NewsExtractor
       last_size = current_size
       sleep 0.5
     end
+  end
 
-    html = session.html
-    if html.strip.size < 5000 # arbitrary threshold
-      puts "Warning: HTML looks incomplete"
-    end
+  def extract_title(article)
+    node = article.at_css('h1, h2, h3, .title, .headline, [class*="title"]')
+    clean_text(node&.text)
+  end
 
-    Nokogiri::HTML(session.html)
-  rescue => e
-    Rails.logger.error("Headless fetch failed: #{e.message}")
-    warn "Headless fetch failed: #{e.message}"
+  def extract_generic(article, selector)
+    node = article.at_css(selector)
+    clean_text(node&.text)
+  end
+
+  def extract_time(article)
+    node = article.at_css('time[datetime], time, .date, [class*="time"], [class*="date"]')
+    node&.[]("datetime") || clean_text(node&.text)
+  end
+
+  def extract_href(article)
+    article.css("a[href]").map { |a| a["href"] }
+           .find { |href| href&.start_with?("/") || href&.start_with?("http") }
+  end
+
+  def absolute_url(href)
+    return unless href
+    href.start_with?("http") ? href : URI.join(@url, href).to_s
+  rescue
     nil
   end
 
-  def extract_from_node(node)
-    link_elem = node.at_css("a[href]") or return
-    href      = link_elem["href"]
-    link      = Addressable::URI.join(@url, href).to_s rescue href
+  def title_from_url(url)
+    return unless url
+    slug = URI.parse(url).path.split("/").reject(&:empty?).last
+    return unless slug
+    slug.gsub("-", " ").capitalize
+  rescue
+    nil
+  end
 
-    # title: prefer heading, then link text
-    if (h = node.at_css("h1,h2,h3"))
-      title = h.text.strip
-    else
-      title = link_elem.text.strip
-    end
-    return nil if title.empty?
-
-    # date same as before
-    if (t = node.at_css("time[datetime]"))
-      date = t["datetime"]
-    else
-      date = node.at_css("time, .date, .timestamp, .pubdate, .dateline")&.text&.strip
-    end
-
-    { title: title, link: link, date: date }
+  def clean_text(text)
+    text&.gsub("\n", "")&.strip
   end
 end
