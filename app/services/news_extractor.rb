@@ -34,7 +34,7 @@ class NewsExtractor
 
     articles
   rescue StandardError => e
-    Rails.logger.error("[NewsScraperService] Failed to scrape: #{e.message}")
+    Rails.logger.error("[NewsExtractor] Failed to scrape: #{e.message}")
     []
   end
 
