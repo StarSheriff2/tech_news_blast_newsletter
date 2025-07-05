@@ -25,7 +25,8 @@ module NewsArticlesExtraction
 
     def programmatic_extraction
       doc = fetch_direct(@url) || fetch_headless(@url)
-      return [] unless doc
+      return unless doc
+      return [] unless doc.any?
 
       article_nodes = doc.css('article, [class*="story"], [class*="article"], [class*="post"], [class*="entry"]')
       articles      = article_nodes.map do | article |
@@ -48,12 +49,8 @@ module NewsArticlesExtraction
     end
 
     def llm_assisted_extraction
-      extraction = Lib::LlmAssistedExtractor.call(@url)
-      articles = extraction.blank? ? [] : JSON.parse(extraction.payload)
-
-      return [] unless articles.is_a? Array
-
-      articles
+      raw_llm_output = Lib::LlmAssistedExtractor.call(@url).payload
+      raw_llm_output.blank? ? [] : LLMOutputParser.parse_yaml_output(raw_llm_output)
     end
 
     def fetch_direct(url)

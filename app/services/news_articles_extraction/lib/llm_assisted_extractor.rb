@@ -2,7 +2,7 @@ module NewsArticlesExtraction
   module Lib
     class LlmAssistedExtractor < ApplicationService
       def call(url)
-        @prompt ="#{Prompts.articles_extractor} This is the url: '#{url}'"
+        @prompt ="#{Prompts.articles_extractor} '#{url}'"
 
         extract!
         success @result
