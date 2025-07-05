@@ -8,7 +8,7 @@ module NewsArticlesExtraction
   require "webdrivers"
 
   class Extractor
-    Article = Struct.new(:title, :author, :published_at, :url, keyword_init: true)
+    Article = Struct.new(:title, :author, :published_at, :url, :location, :source, keyword_init: true)
 
     def initialize(url)
       @url = url
@@ -34,7 +34,9 @@ module NewsArticlesExtraction
           title:        extract_title(article).blank? ? title_from_url(url) : extract_title(article),
           author:       extract_generic(article, '[class*="author"], .byline, .contributor'),
           published_at: extract_time(article),
-          url:          url
+          url:          url,
+          location:     extract_location(article),
+          source:       extract_source(@url)
         }
       end
 
@@ -103,6 +105,11 @@ module NewsArticlesExtraction
       node&.[]("datetime") || clean_text(node&.text)
     end
 
+    def extract_location(article)
+      node = article.at_css('[class*="location"], .dateline, .place')
+      clean_text(node&.text)
+    end
+
     def extract_href(article)
       article.css("a[href]").map { |a| a["href"] }
              .find { |href| href&.start_with?("/") || href&.start_with?("http") }
@@ -120,6 +127,14 @@ module NewsArticlesExtraction
       slug = URI.parse(url).path.split("/").reject(&:empty?).last
       return unless slug
       slug.gsub("-", " ").capitalize
+    rescue
+      nil
+    end
+
+    def extract_source(url)
+      uri = URI.parse(url)
+      host = uri.host.sub(/^www\./, "")
+      host.split(".")[0].capitalize + " News"
     rescue
       nil
     end
