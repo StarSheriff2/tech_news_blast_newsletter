@@ -1,4 +1,5 @@
 require "faraday"
+require "faraday/retry"
 
 module Groq
   module Openai
@@ -12,6 +13,9 @@ module Groq
 
             def setup_custom_middlewares(config)
               config.request :authorization, :Bearer, api_key
+              config.request :retry, max: 3, interval: 0.5, backoff_factor: 2,
+                        retry_statuses: [ 429, 500, 502, 503, 504 ],
+                        methods: [ :post ]
               super
             end
           end
