@@ -26,19 +26,22 @@ module NewsArticlesExtraction
     def programmatic_extraction
       doc = fetch_direct(@url) || fetch_headless(@url)
       return unless doc
-      return [] unless doc.any?
 
       article_nodes = doc.css('article, [class*="story"], [class*="article"], [class*="post"], [class*="entry"]')
-      articles      = article_nodes.map do | article |
+      articles      = []
+        article_nodes.each do | article |
         url = absolute_url(extract_href(article))
-        {
-          title:        extract_title(article).blank? ? title_from_url(url) : extract_title(article),
-          author:       extract_generic(article, '[class*="author"], .byline, .contributor'),
-          published_at: extract_time(article),
-          url:          url,
-          location:     extract_location(article),
-          source:       extract_source(@url)
-        }
+        next unless url
+
+        articles <<
+          {
+            title:        extract_title(article).blank? ? title_from_url(url) : extract_title(article),
+            author:       extract_generic(article, '[class*="author"], .byline, .contributor'),
+            published_at: extract_time(article),
+            url:          url,
+            location:     extract_location(article),
+            source:       extract_source(@url)
+          }
       end
 
       articles.compact.uniq { | a | a[:url] }.map { | data | Article.new(**data) }
@@ -49,6 +52,9 @@ module NewsArticlesExtraction
     end
 
     def llm_assisted_extraction
+      # TODO: Implement a retry in case the LLM output can't be parsed
+      # TODO: Implement a more robust way to exrtact dates ffrom the article, like in
+      # https://www.reuters.com/technology/ where it is in the url
       raw_llm_output = Lib::LlmAssistedExtractor.call(@url).payload
       raw_llm_output.blank? ? [] : LLMOutputParser.parse_yaml_output(raw_llm_output)
     end
