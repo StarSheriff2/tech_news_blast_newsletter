@@ -29,7 +29,7 @@ module NewsArticlesExtraction
 
       article_nodes = doc.css('article, [class*="story"], [class*="article"], [class*="post"], [class*="entry"]')
       articles      = []
-        article_nodes.each do | article |
+      article_nodes.each do | article |
         url = absolute_url(extract_href(article))
         next unless url
 
