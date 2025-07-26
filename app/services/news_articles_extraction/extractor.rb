@@ -55,8 +55,19 @@ module NewsArticlesExtraction
       # TODO: Implement a retry in case the LLM output can't be parsed
       # TODO: Implement a more robust way to exrtact dates ffrom the article, like in
       # https://www.reuters.com/technology/ where it is in the url
-      raw_llm_output = Lib::LlmAssistedExtractor.call(@url).payload
-      raw_llm_output.blank? ? [] : LLMOutputParser.parse_yaml_output(raw_llm_output)
+      retries = 5
+      begin
+        raw_llm_output = Lib::LlmAssistedExtractor.call(@url).payload
+        raw_llm_output.blank? ? [] : LLMOutputParser.parse_yaml_output(raw_llm_output)
+      rescue Psych::SyntaxError => e
+        retries -= 1
+        if retries.positive?
+          sleep(2)
+          retry
+        else
+          raise e # Re-raise the error after exhausting retries
+        end
+      end
     end
 
     def fetch_direct(url)
