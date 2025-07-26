@@ -25,7 +25,7 @@ gem "solid_queue"
 gem "bootsnap", require: false
 
 gem "faraday"
-gem 'faraday-retry'
+gem "faraday-retry"
 
 # Deploy this application anywhere as a Docker container [https://kamal-deploy.org]
 gem "kamal", require: false
