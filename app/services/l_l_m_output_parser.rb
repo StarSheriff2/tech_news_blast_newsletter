@@ -24,7 +24,8 @@ module LLMOutputParser
                   .sub(/^.*?(-\s)/m, '\1')         # Remove anything before the first "- " list item
                   .strip
 
-      Rails.logger.info("Cleaned YAML: #{cleaned}")
+      Rails.logger.info("Cleaned YAML:
+#{cleaned}")
       cleaned
     end
   end
