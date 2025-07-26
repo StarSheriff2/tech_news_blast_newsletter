@@ -52,9 +52,9 @@ module NewsArticlesExtraction
     end
 
     def llm_assisted_extraction
-      # TODO: Implement a retry in case the LLM output can't be parsed
       # TODO: Implement a more robust way to exrtact dates ffrom the article, like in
-      # https://www.reuters.com/technology/ where it is in the url
+      # https://www.reuters.com/technology/ where it is in the url.
+      # TODO: Fix an error where the date is not properly extracted from the arcticle's url
       retries = 5
       begin
         raw_llm_output = Lib::LlmAssistedExtractor.call(@url).payload
