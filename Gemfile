@@ -56,6 +56,7 @@ gem "httparty"
 gem "nokogiri"
 gem "selenium-webdriver", "~> 4.10.0"
 gem "webdrivers", "~> 5.3"
+gem "open3"
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem

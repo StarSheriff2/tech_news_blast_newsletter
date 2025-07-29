@@ -10,7 +10,7 @@ module Groq
                 http_method: :post,
                 endpoint: "chat/completions",
                 params: {
-                  model: "llama-3.3-70b-versatile",
+                  model: "moonshotai/kimi-k2-instruct",
                   messages: [ {
                                 role: "user",
                                 content: prompt
